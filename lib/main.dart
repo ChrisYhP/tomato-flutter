@@ -18,6 +18,11 @@ class MyApp extends StatelessWidget {
   }
 }
 
+ get TaskData {
+  String name;
+  Widget icon;
+}
+
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
 
@@ -27,8 +32,10 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
+
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+
+  final taskItems =  [];  
   
   void _onPress() {
      
@@ -51,42 +58,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Container()
               ),
             ),
-            Column(
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.all(20),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: <Widget>[
-                      Row(children: <Widget>[
-                        Icon(Icons.today),
-                        Padding(
-                          padding: EdgeInsets.only(left: 5),
-                          child: Text(
-                            '今天',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: Colors.black
-                            ),
-                          ),
-                        ),
-                      ],),
-                      Row(children: <Widget>[
-                        Text('12h'),
-                        Padding(
-                          padding: EdgeInsets.only(left: 5),
-                          child: Text(
-                            '2', 
-                            style: TextStyle(
-                              color: Colors.black87
-                            )
-                          ),
-                        )
-                      ],),
-                    ],
-                  )
-                ),
-              ],
+            ListView(
+              children: taskItems.map((f) => (TaskItem(taskdata: f,))).toList()
             )
           ],
         ),
@@ -107,6 +80,53 @@ class _MyHomePageState extends State<MyHomePage> {
           BottomNavigationBarItem(icon: Icon(Icons.face), title: Container()),
         ],
       ),
+    );
+  }
+}
+
+class TaskItem extends StatelessWidget {
+
+  const TaskItem({
+    Key key,
+    this.taskdata
+  }) : super(key: key);
+
+  final taskdata;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.all(20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: <Widget>[
+          Row(children: <Widget>[
+            taskdata.icon,
+            Padding(
+              padding: EdgeInsets.only(left: 5),
+              child: Text(
+                taskdata.name,
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black
+                ),
+              ),
+            ),
+          ],),
+          Row(children: <Widget>[
+            Text('12h'),
+            Padding(
+              padding: EdgeInsets.only(left: 5),
+              child: Text(
+                '2', 
+                style: TextStyle(
+                  color: Colors.black87
+                )
+              ),
+            )
+          ],),
+        ],
+      )
     );
   }
 }
