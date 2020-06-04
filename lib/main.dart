@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import './scanCode.dart';
 
 void main() {
   runApp(MyApp());
@@ -13,15 +14,11 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MyHomePage(title: ' Page'),
+      home: ScanBody(),
     );
   }
 }
 
- get TaskData {
-  String name;
-  Widget icon;
-}
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key, this.title}) : super(key: key);
@@ -35,7 +32,11 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
-  final taskItems =  [];  
+  List taskItems =  [{
+    {'name': '今天', 'icon': Icon(Icons.today)},
+    {'name': '明天', 'icon': Icon(Icons.bubble_chart)},
+    {'name': 'WIDGET', 'icon': Icon(Icons.disc_full)},
+  }];  
   
   void _onPress() {
      
@@ -58,9 +59,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Container()
               ),
             ),
-            ListView(
-              children: taskItems.map((f) => (TaskItem(taskdata: f,))).toList()
-            )
+            // ListView(
+            //   children: taskItems.map((f) => (TaskItem(taskdata: f,))).toList()
+            // )
           ],
         ),
       ),
