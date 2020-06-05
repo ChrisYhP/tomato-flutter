@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import './scanCode.dart';
+// import './scanCode.dart';
 
 void main() {
   runApp(MyApp());
@@ -14,7 +14,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: ScanBody(),
+      home: MyHomePage(),
     );
   }
 }
@@ -32,11 +32,12 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
 
-  List taskItems =  [{
+  List taskItems =  [
     {'name': '今天', 'icon': Icon(Icons.today)},
     {'name': '明天', 'icon': Icon(Icons.bubble_chart)},
-    {'name': 'WIDGET', 'icon': Icon(Icons.disc_full)},
-  }];  
+    {'name': '即将到来', 'icon': Icon(Icons.disc_full)},
+    {'name': '待定', 'icon': Icon(Icons.disc_full)},
+  ];
   
   void _onPress() {
      
@@ -59,9 +60,11 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Container()
               ),
             ),
-            // ListView(
-            //   children: taskItems.map((f) => (TaskItem(taskdata: f,))).toList()
-            // )
+            Expanded(
+              child: ListView(
+                children: taskItems.map((f) => TaskItem(taskdata: f)).toList(),
+              )
+            )
           ],
         ),
       ),
@@ -96,17 +99,18 @@ class TaskItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    print(taskdata);
     return Padding(
       padding: EdgeInsets.all(20),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: <Widget>[
           Row(children: <Widget>[
-            taskdata.icon,
+            taskdata['icon'],
             Padding(
               padding: EdgeInsets.only(left: 5),
               child: Text(
-                taskdata.name,
+                taskdata['name'],
                 style: TextStyle(
                   fontWeight: FontWeight.w600,
                   color: Colors.black
@@ -131,3 +135,23 @@ class TaskItem extends StatelessWidget {
     );
   }
 }
+
+// class ListView3 extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     //下划线widget预定义以供复用。  
+//     Widget divider1=Divider(color: Colors.blue,);
+//     Widget divider2=Divider(color: Colors.green);
+//     return ListView.separated(
+//         itemCount: 100,
+//         //列表项构造器
+//         itemBuilder: (BuildContext context, int index) {
+//           return ListTile(title: Text("$index"));
+//         },
+//         //分割器构造器
+//         separatorBuilder: (BuildContext context, int index) {
+//           return index%2==0?divider1:divider2;
+//         },
+//     );
+//   }
+// }
