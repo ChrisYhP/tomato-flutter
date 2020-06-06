@@ -1,5 +1,6 @@
 build/
 .dart_tool
 .vscode
+.idea
 build
 

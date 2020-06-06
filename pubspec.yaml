@@ -29,6 +29,7 @@ dependencies:
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^0.1.3
   barcode_scan: ^3.0.1
+  qr_mobile_vision: ^1.0.1+1
 
 
 dev_dependencies:

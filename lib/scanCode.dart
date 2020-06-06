@@ -1,68 +1,74 @@
+
 import 'package:flutter/material.dart';
-import 'package:barcode_scan/barcode_scan.dart';
-import 'dart:async';
-import 'package:flutter/services.dart';
+import 'package:flutter/rendering.dart';
+import 'package:qr_mobile_vision/qr_camera.dart';
+import 'package:qr_mobile_vision/qr_mobile_vision.dart';
 
-
-class ScanBody extends StatefulWidget {
+class Scanbody extends StatefulWidget {
   @override
-  _ScanBodyState createState() => _ScanBodyState();
+  _MyAppState createState() => new _MyAppState();
 }
 
-class _ScanBodyState extends State<ScanBody> {
-  String barcode = "";
-  
+class _MyAppState extends State<Scanbody> {
+  String qr;
+  bool camState = false;
+
   @override
-  void initState() {
+  initState() {
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text('QR code'),),
-      body: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-            child: RaisedButton(
-              color: Colors.orange,
-              textColor: Colors.white,
-              splashColor: Colors.blueGrey,
-              onPressed: scan,
-              child: Text('start camera scan'),
-            ),
-          ),
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            child: Text(barcode, textAlign: TextAlign.center),
-          )
-        ],
+    return new Scaffold(
+      appBar: new AppBar(
+        title: new Text('Plugin example app'),
       ),
+      body: new Center(
+        child: new Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            new Expanded(
+                child: camState
+                    ? new Center(
+                        child: new SizedBox(
+                          width: 300.0,
+                          height: 600.0,
+                          child: new QrCamera(
+                            onError: (context, error) => Text(
+                                  error.toString(),
+                                  style: TextStyle(color: Colors.red),
+                                ),
+                            qrCodeCallback: (code) {
+                              setState(() {
+                                qr = code;
+                              });
+                            },
+                            child: new Container(
+                              decoration: new BoxDecoration(
+                                color: Colors.transparent,
+                                border: Border.all(color: Colors.orange, width: 10.0, style: BorderStyle.solid),
+                              ),
+                            ),
+                          ),
+                        ),
+                      )
+                    : new Center(child: new Text("Camera inactive"))),
+            new Text("QRCODE: $qr"),
+          ],
+        ),
+      ),
+      floatingActionButton: new FloatingActionButton(
+          child: new Text(
+            "press me",
+            textAlign: TextAlign.center,
+          ),
+          onPressed: () {
+            setState(() {
+              camState = !camState;
+            });
+          }),
     );
   }
-  Future scan() async {
-      try {
-      ScanResult baresult = await BarcodeScanner.scan();
-      setState(() {
-        return this.barcode = baresult.rawContent;
-      });
-    } on PlatformException catch (e) {
-      if (e.code == BarcodeScanner.cameraAccessDenied) {
-        setState(() {
-          return this.barcode = 'The user did not grant the camera permission!';
-        });
-      } else {
-        setState(() {
-          return this.barcode = 'Unknown error: $e';
-        });
-      }
-    } on FormatException{
-      setState(() => this.barcode = 'null (User returned using the "back"-button before scanning anything. Result)');
-    } catch (e) {
-      setState(() => this.barcode = 'Unknown error: $e');
-    }
-  }
 }
-

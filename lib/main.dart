@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-// import './scanCode.dart';
 
 void main() {
   runApp(MyApp());
@@ -11,7 +10,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primaryColor: Colors.deepPurpleAccent[700],
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: MyHomePage(),
@@ -31,7 +30,7 @@ class MyHomePage extends StatefulWidget {
 
 
 class _MyHomePageState extends State<MyHomePage> {
-
+  int index = 0;
   List taskItems =  [
     {'name': '今天', 'icon': Icon(Icons.today)},
     {'name': '明天', 'icon': Icon(Icons.bubble_chart)},
@@ -49,40 +48,85 @@ class _MyHomePageState extends State<MyHomePage> {
       body: Center(
         child: Column(
           children: <Widget>[
-            ConstrainedBox(
-              constraints: BoxConstraints(
-                minWidth: double.infinity,
-                minHeight: 300
-              ),
-              child: Container(
-                alignment: Alignment.center,
-                color: Colors.redAccent,
-                child: Container()
+            Container(
+              width: double.infinity,
+              height: 200,
+              color: Colors.deepPurpleAccent[700],
+              child: Padding(
+                padding: const EdgeInsets.all(20.0),
+                child: Text('下午好', style: TextStyle(color: Colors.white, fontSize: 40, fontWeight: FontWeight.w800),),
               ),
             ),
             Expanded(
-              child: ListView(
-                children: taskItems.map((f) => TaskItem(taskdata: f)).toList(),
+              child: Transform.translate(
+                offset: Offset(0, -40),
+                child: Container(
+                  height: double.infinity,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(topLeft: Radius.circular(30), topRight: Radius.circular(30))
+                  ),
+                  child: ListView(
+                    children: taskItems.map((f) => TaskItem(taskdata: f)).toList(),
+                  ),
+                ),
               )
             )
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
+        backgroundColor: Colors.deepOrangeAccent,
         onPressed: _onPress,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
+        tooltip: '新增',
+        child: Icon(Icons.add, color: Colors.white,),
       ), 
-      bottomNavigationBar: BottomNavigationBar(
-        fixedColor: Colors.red,
-        items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            title: Container()
+      floatingActionButtonLocation: FloatingActionButtonLocation.endDocked,
+      bottomNavigationBar: BottomAppBar(
+        color: Colors.deepPurpleAccent[700],
+        shape: CircularNotchedRectangle(),
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Row(
+            children: [
+              Container(
+                height: 40,
+                decoration: BoxDecoration(
+                  color:  Colors.white,
+                  borderRadius: BorderRadius.circular(30)
+                ),
+                child: FlatButton.icon(
+                  label: index == 0 ? Text('首页', style: TextStyle(color: Colors.deepPurpleAccent[700]),) : Text(''),
+                  icon: Icon(Icons.add_alarm, color: Colors.deepPurpleAccent[700],),
+                ),
+              ), 
+              Container(
+                height: 40,
+                decoration: BoxDecoration(
+                  color: index == 1 ? Colors.white : Colors.deepPurpleAccent[700],
+                  borderRadius: BorderRadius.circular(30)
+                ),
+                child: FlatButton.icon(
+                  label: index == 1 ? Text('首页', style: TextStyle(color: Colors.deepPurpleAccent[700]),) : Text(''),
+                  icon: Icon(Icons.add_alarm, color: Colors.white,),
+                ),
+              ),  
+              Container(
+                height: 40,
+                decoration: BoxDecoration(
+                  color: index == 1 ? Colors.white : Colors.deepPurpleAccent[700],
+                  borderRadius: BorderRadius.circular(30)
+                ),
+                child: FlatButton.icon(
+                  label: index == 1 ? Text('首页', style: TextStyle(color: Colors.deepPurpleAccent[700]),) : Text(''),
+                  icon: Icon(Icons.add_alarm, color: Colors.white,),
+                ),
+              ),  
+              SizedBox(width: 60,),
+            ],
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.av_timer), title: Container()),
-          BottomNavigationBarItem(icon: Icon(Icons.face), title: Container()),
-        ],
+        ),
       ),
     );
   }
