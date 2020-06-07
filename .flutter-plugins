@@ -1,4 +1,5 @@
 # This is a generated file; do not edit or check into version control.
-barcode_scan=/Users/js/.pub-cache/hosted/pub.flutter-io.cn/barcode_scan-3.0.1/
-native_device_orientation=/Users/js/.pub-cache/hosted/pub.flutter-io.cn/native_device_orientation-0.3.0/
-qr_mobile_vision=/Users/js/.pub-cache/hosted/pub.flutter-io.cn/qr_mobile_vision-1.0.1+1/
+audioplayers=/Users/js/.pub-cache/hosted/pub.flutter-io.cn/audioplayers-0.13.7/
+path_provider=/Users/js/.pub-cache/hosted/pub.flutter-io.cn/path_provider-1.6.10/
+path_provider_linux=/Users/js/.pub-cache/hosted/pub.flutter-io.cn/path_provider_linux-0.0.1+1/
+path_provider_macos=/Users/js/.pub-cache/hosted/pub.flutter-io.cn/path_provider_macos-0.0.4+3/
