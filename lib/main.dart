@@ -1,10 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
 import 'audio.dart';
 import './pages/addlist/addList.dart';
-import './animation//RotationXTransition.dart';
-
 
 void main() {
   runApp(MyApp());
@@ -34,16 +31,17 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
-
+class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   final GlobalKey<AnimatedListState> _listkey = GlobalKey();
-  
+
   int index = 0;
-  
+
   int currentPage = 0;
-  
+
   GlobalKey bottomNavigationKey = GlobalKey();
-  
+
+  AnimationController _controller;
+
   List _taskItems = [
     {'name': '学习', 'icon': Icon(Icons.school), 'isTap': false},
     {'name': '工作', 'icon': Icon(Icons.work), 'isTap': false},
@@ -62,6 +60,13 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
   void initState() {
     super.initState();
     AudioPlay().init();
+      _controller = AnimationController(vsync: this)
+      ..drive(Tween(begin: 0, end: 1))
+      ..duration = Duration(milliseconds: 500)
+      ..addStatusListener((AnimationStatus status) {
+        print(status);
+    });
+    
   }
 
   // @override
@@ -91,20 +96,18 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
    */
   void _removeItem(context, index) {
     dynamic itemToRemove = _taskItems[index];
-      _taskItems.removeAt(index);
+    _taskItems.removeAt(index);
 
     _listkey.currentState.removeItem(
       index,
       (BuildContext context, Animation<double> animation) {
-         print(animation.value);
         return SlideTransition(
           textDirection: TextDirection.rtl,
-                        position: Tween<Offset>(begin: Offset(1, 0), end: Offset(0, 0)).animate(CurvedAnimation(
-                          curve: Curves.bounceIn,
-                          parent: animation
-                        )),
-                        child: generateTask(context, index, itemToRemove),
-          );
+          position: Tween<Offset>(begin: Offset(1, 0), end: Offset(0, 0))
+              .animate(
+                  CurvedAnimation(curve: Curves.bounceIn, parent: animation)),
+          child: generateTask(context, index, itemToRemove),
+        );
       },
       duration: const Duration(milliseconds: 1000),
     );
@@ -124,129 +127,156 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
   /*
    * 生成任务列表
    */
-  Widget generateTask(
-      BuildContext context, int i, dynamic taskdata) {
-
+  Widget generateTask(BuildContext context, int i, dynamic taskdata) {
     return ListTile(
-    onTap: () {
-      setState(() {
-        this._taskItems = this
-      ._taskItems
-      .asMap()
-      .keys
-      .map((r) => ({
-            ..._taskItems[i],
-            'isTap': r == i ? !_taskItems[i]['isTap'] : false
-          }))
-      .toList();
-      });
-    },
-    title: Text(
-      taskdata['name'],
-      style: TextStyle(fontWeight: FontWeight.bold),
-    ),
-    subtitle: Text(
-      '番茄时钟',
-      style: TextStyle(fontSize: 14),
-    ),
-    leading: Container(
-      width: 30,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[taskdata['icon']],
+      onTap: () {
+        setState(() {
+          this._taskItems = this
+              ._taskItems
+              .asMap()
+              .keys
+              .map((r) => ({
+                    ..._taskItems[i],
+                    'isTap': r == i ? !_taskItems[i]['isTap'] : false
+                  }))
+              .toList();
+        });
+        if (_controller.status == AnimationStatus.completed) {
+            _controller.reverse();
+          } else if (_controller.status == AnimationStatus.dismissed) {
+            _controller.forward();
+          }
+      },
+      title: Text(
+        taskdata['name'],
+        style: TextStyle(fontWeight: FontWeight.bold),
       ),
-    ),
-    trailing: Container(
-      width: 80,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-      children: <Widget>[
-      AnimatedSwitcher(
-        duration: const Duration(milliseconds: 500),
-        transitionBuilder: (Widget child, Animation<double> animation) {
-          return ScaleTransition(child: child, scale: animation);
-        },
-        child: Icon(Icons.chevron_left,key: Key('${taskdata['isTap']}${i}'),), 
+      subtitle: Text(
+        '番茄时钟',
+        style: TextStyle(fontSize: 14),
       ),
-      taskdata['isTap']
-          ? Container(
-              child: PopupMenuButton(
-                offset: Offset(20, 40),
-                onSelected: (value) {
-                  switch (value) {
-                    case 'delete':
-                      _removeItem(context, i);
-                      break;
-                    case 'add':
-                      _addItem();
-                      break;
-                    default:
-                  }
-                },
-                itemBuilder: (context) => <PopupMenuEntry<String>>[
-                  PopupMenuItem(
-                      height: 20,
-                      value: 'add',
-                      child: Text(
-                        '新增',
-                        style: TextStyle(fontSize: 12),
-                      )),
-                  PopupMenuDivider(),
-                  PopupMenuItem(
-                    height: 20,
-                    value: 'delete',
-                    child: Text(
-                      '删除',
-                      style: TextStyle(fontSize: 12),
-                    ),
-                  ),
-                ],
-              ),
-            )
-          : Container(),
-      ],
+      leading: Container(
+        width: 30,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[taskdata['icon']],
         ),
-    ),
-        );
+      ),
+      trailing: Container(
+        width: 80,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            AnimatedIcon(
+              icon: AnimatedIcons.pause_play,
+              progress: _controller
+            ),
+            taskdata['isTap']
+                ? Container(
+                    child: PopupMenuButton(
+                      offset: Offset(20, 40),
+                      onSelected: (value) {
+                        switch (value) {
+                          case 'delete':
+                            _removeItem(context, i);
+                            break;
+                          case 'add':
+                            _addItem();
+                            break;
+                          default:
+                        }
+                      },
+                      itemBuilder: (context) => <PopupMenuEntry<String>>[
+                        PopupMenuItem(
+                            height: 20,
+                            value: 'add',
+                            child: Text(
+                              '新增',
+                              style: TextStyle(fontSize: 12),
+                            )),
+                        PopupMenuDivider(),
+                        PopupMenuItem(
+                          height: 20,
+                          value: 'delete',
+                          child: Text(
+                            '删除',
+                            style: TextStyle(fontSize: 12),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                : Container(),
+          ],
+        ),
+      ),
+    );
   }
 
   /*
    * 底部导航按钮
    */
   Widget generateButton(i, buttonData) {
-    return AnimatedSize(
-          
-          duration: Duration(milliseconds: 200),
-          vsync: this,
-          child: SizedBox(
-          width: index == i ? 100 : 60,
-          child: FlatButton.icon(
-      color: index == i ? Colors.white : Colors.deepPurpleAccent[700],
-      shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.circular(20))),
-      onPressed: () {
-        setState(() {
-          index = i;
-        });
-      },
-      label: index == i
-          ? Text(
-              buttonData['name'],
-              style: TextStyle(color: Colors.deepPurpleAccent[700]),
-            )
-          : Text(''),
-      icon: Icon(
-        buttonData['icon'],
-        color: index == i ? Colors.deepPurpleAccent[700] : Colors.white,
+    bool isSelected = index == i;
+    Color activeColor = Colors.deepPurpleAccent[700];
+    Color inactiveColor = Colors.white;
+    return AnimatedContainer(
+      width: index == i ? 100 : 60,
+      height: 40,
+      duration: Duration(milliseconds: 200),
+      decoration: BoxDecoration(
+          color: index == i ? Colors.white : Colors.deepPurpleAccent[700],
+          borderRadius: BorderRadius.all(Radius.circular(40))
       ),
-          ),
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        physics: NeverScrollableScrollPhysics(),
+        child: InkWell(
+          onTap: () {
+            setState(() {
+              index = i;
+            });
+          },
+                  child: Container(
+              width: isSelected ? 100 : 50,
+              padding: EdgeInsets.symmetric(horizontal: 8),
+              child: Row(
+                mainAxisSize: MainAxisSize.max,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  IconTheme(
+                    data: IconThemeData(
+                      color: isSelected
+                          ? activeColor.withOpacity(1)
+                          : inactiveColor,
+                    ),
+                    child: Icon(_buttonItems[i]['icon']),
+                  ),
+                  if (isSelected)
+                    Expanded(
+                      child: Container(
+                        padding: EdgeInsets.symmetric(horizontal: 4),
+                        child: DefaultTextStyle.merge(
+                          style: TextStyle(
+                            color: activeColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          maxLines: 1,
+                          child: Text(_buttonItems[i]['name']),
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
         ),
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    print(_taskItems.length);
     return Scaffold(
       appBar: AppBar(title: Text('任务')),
       body: Container(
@@ -259,13 +289,11 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin{
               itemBuilder: (BuildContext context, int index,
                       Animation<double> animation) =>
                   SlideTransition(
-                    position: Tween<Offset>(begin: Offset(1, 0), end: Offset(0, 0)).animate(CurvedAnimation(
-                      curve: Curves.easeInOutBack,
-                      parent: animation
-                    )),
-                    child: generateTask(context, index, _taskItems[index]),
-                  ) 
-                  ,
+                position: Tween<Offset>(begin: Offset(1, 0), end: Offset(0, 0))
+                    .animate(CurvedAnimation(
+                        curve: Curves.easeInOutBack, parent: animation)),
+                child: generateTask(context, index, _taskItems[index]),
+              ),
             )),
           ],
         ),
