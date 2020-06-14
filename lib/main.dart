@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'audio.dart';
 import './pages/addlist/addList.dart';
+import 'package:hexcolor/hexcolor.dart';
 
 void main() {
   runApp(MyApp());
@@ -13,7 +14,6 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
       home: MyHomePage(),
@@ -33,23 +33,19 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   final GlobalKey<AnimatedListState> _listkey = GlobalKey();
-
   int index = 0;
-
   int currentPage = 0;
 
-  GlobalKey bottomNavigationKey = GlobalKey();
+  Color blackBg = Hexcolor('#282828');
 
-  AnimationController _controller;
-
-  List _taskItems = [
-    {'name': '学习', 'icon': Icon(Icons.school), 'isTap': false},
-    {'name': '工作', 'icon': Icon(Icons.work), 'isTap': false},
-    {'name': '运动', 'icon': Icon(Icons.directions_run), 'isTap': false},
-    {'name': '学习', 'icon': Icon(Icons.school), 'isTap': false},
-    {'name': '工作', 'icon': Icon(Icons.work), 'isTap': false},
+  List<Map<String, dynamic>> _taskItems = [
+    {
+      'name': '学习',
+      'icon': Icon(Icons.school),
+      'isTap': false,
+      'controller': ''
+    },
   ];
-
   List _buttonItems = [
     {'name': '任务', 'icon': Icons.school},
     {'name': '统计', 'icon': Icons.work},
@@ -60,13 +56,17 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   void initState() {
     super.initState();
     AudioPlay().init();
-      _controller = AnimationController(vsync: this)
+    AnimationController _controller = AnimationController(vsync: this)
       ..drive(Tween(begin: 0, end: 1))
       ..duration = Duration(milliseconds: 500)
       ..addStatusListener((AnimationStatus status) {
-        print(status);
-    });
-    
+        print('global$status');
+      });
+    _taskItems = _taskItems
+        .asMap()
+        .keys
+        .map((f) => ({..._taskItems[f], 'controller': _controller}))
+        .toList();
   }
 
   // @override
@@ -85,7 +85,18 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
    * 新增列表 
    */
   void _addItem() {
-    dynamic list = {'name': '22å', 'icon': Icon(Icons.school), 'isTap': false};
+    AnimationController _controller = AnimationController(vsync: this)
+      ..drive(Tween(begin: 0, end: 1))
+      ..duration = Duration(milliseconds: 500)
+      ..addStatusListener((AnimationStatus status) {
+        print('global$status');
+      });
+    dynamic list = {
+      'name': '22å',
+      'icon': Icon(Icons.school),
+      'isTap': false,
+      'controller': _controller
+    };
     _listkey.currentState.insertItem(0, duration: Duration(milliseconds: 1000));
     _taskItems.insert(0, list);
     AudioPlay().play('mp3/add.mp3');
@@ -124,28 +135,32 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     AudioPlay().play('mp3/remove.mp3');
   }
 
+  void onTileClick(int i, AnimationController controller) {
+    setState(() {
+      _taskItems = _taskItems
+          .asMap()
+          .keys
+          .map((r) => ({
+                ..._taskItems[r],
+                'isTap': r == i ? !_taskItems[i]['isTap'] : false
+              }))
+          .toList();
+    });
+    if (controller.status == AnimationStatus.dismissed) {
+      controller.forward();
+    } else {
+      controller.reverse();
+    }
+  }
+
   /*
    * 生成任务列表
    */
   Widget generateTask(BuildContext context, int i, dynamic taskdata) {
     return ListTile(
+      key: ObjectKey(taskdata),
       onTap: () {
-        setState(() {
-          this._taskItems = this
-              ._taskItems
-              .asMap()
-              .keys
-              .map((r) => ({
-                    ..._taskItems[i],
-                    'isTap': r == i ? !_taskItems[i]['isTap'] : false
-                  }))
-              .toList();
-        });
-        if (_controller.status == AnimationStatus.completed) {
-            _controller.reverse();
-          } else if (_controller.status == AnimationStatus.dismissed) {
-            _controller.forward();
-          }
+        onTileClick(i, taskdata['controller']);
       },
       title: Text(
         taskdata['name'],
@@ -163,14 +178,15 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
         ),
       ),
       trailing: Container(
+        key: ObjectKey(taskdata),
         width: 80,
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             AnimatedIcon(
-              icon: AnimatedIcons.pause_play,
-              progress: _controller
-            ),
+                key: ObjectKey(taskdata),
+                icon: AnimatedIcons.play_pause,
+                progress: taskdata['controller']),
             taskdata['isTap']
                 ? Container(
                     child: PopupMenuButton(
@@ -226,8 +242,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       duration: Duration(milliseconds: 200),
       decoration: BoxDecoration(
           color: index == i ? Colors.white : Colors.deepPurpleAccent[700],
-          borderRadius: BorderRadius.all(Radius.circular(40))
-      ),
+          borderRadius: BorderRadius.all(Radius.circular(40))),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         physics: NeverScrollableScrollPhysics(),
@@ -237,39 +252,38 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
               index = i;
             });
           },
-                  child: Container(
-              width: isSelected ? 100 : 50,
-              padding: EdgeInsets.symmetric(horizontal: 8),
-              child: Row(
-                mainAxisSize: MainAxisSize.max,
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: <Widget>[
-                  IconTheme(
-                    data: IconThemeData(
-                      color: isSelected
-                          ? activeColor.withOpacity(1)
-                          : inactiveColor,
-                    ),
-                    child: Icon(_buttonItems[i]['icon']),
+          child: Container(
+            width: isSelected ? 100 : 50,
+            padding: EdgeInsets.symmetric(horizontal: 8),
+            child: Row(
+              mainAxisSize: MainAxisSize.max,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                IconTheme(
+                  data: IconThemeData(
+                    color:
+                        isSelected ? activeColor.withOpacity(1) : inactiveColor,
                   ),
-                  if (isSelected)
-                    Expanded(
-                      child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 4),
-                        child: DefaultTextStyle.merge(
-                          style: TextStyle(
-                            color: activeColor,
-                            fontWeight: FontWeight.bold,
-                          ),
-                          maxLines: 1,
-                          child: Text(_buttonItems[i]['name']),
+                  child: Icon(_buttonItems[i]['icon']),
+                ),
+                if (isSelected)
+                  Expanded(
+                    child: Container(
+                      padding: EdgeInsets.symmetric(horizontal: 4),
+                      child: DefaultTextStyle.merge(
+                        style: TextStyle(
+                          color: activeColor,
+                          fontWeight: FontWeight.bold,
                         ),
+                        maxLines: 1,
+                        child: Text(_buttonItems[i]['name']),
                       ),
                     ),
-                ],
-              ),
+                  ),
+              ],
             ),
+          ),
         ),
       ),
     );
@@ -278,7 +292,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text('任务')),
+      appBar: AppBar(title: Text('任务'), backgroundColor: blackBg),
       body: Container(
         child: Column(
           children: <Widget>[
