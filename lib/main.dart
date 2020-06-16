@@ -1,7 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:tomato/pages/entry_dailog/entry_dailog.dart';
 import 'audio.dart';
-import './pages/addlist/addList.dart';
+import './pages/add_task/add_task.dart';
 import 'package:hexcolor/hexcolor.dart';
 
 void main() {
@@ -151,6 +152,14 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
     } else {
       controller.reverse();
     }
+  }
+
+  void gotoAddList(context) {
+    Navigator.of(context).push(new MaterialPageRoute<Null>(
+        builder: (BuildContext context) {
+          return new EntryDailog();
+        },
+        fullscreenDialog: true));
   }
 
   /*
@@ -314,7 +323,7 @@ class _MyHomePageState extends State<MyHomePage> with TickerProviderStateMixin {
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.deepOrangeAccent,
-        onPressed: () => Navigator.pushNamed(context, 'addList'),
+        onPressed: () => gotoAddList(context),
         tooltip: '新增',
         child: Icon(
           Icons.add,

@@ -137,8 +137,8 @@ class _AddListState extends State<AddList> {
   List<Widget> generateList(context) {
     var list =
         _taskItems.asMap().keys.map((f) => genTaskList(context, f)).toList();
-    var hasCompleteItem = _taskItems.any((f) => f['isComplete']);
-    var index = _taskItems.indexWhere((f) => f['isComplete']);
+    bool hasCompleteItem = _taskItems.any((f) => f['isComplete']);
+    int index = _taskItems.indexWhere((f) => f['isComplete']);
     if (hasCompleteItem) {
       list.insert(index, Text('已完成'));
     }
