@@ -92,7 +92,7 @@ class _AddListState extends State<AddList> {
     ));
   }
 
-  Widget genTaskList(context, index) {
+  Widget genTaskList(BuildContext context, int index) {
     var item = _taskItems[index];
     return Container(
       key: Key('$index'),
@@ -134,7 +134,7 @@ class _AddListState extends State<AddList> {
     );
   }
 
-  List<Widget> generateList(context) {
+  List<Widget> generateList(BuildContext context) {
     var list =
         _taskItems.asMap().keys.map((f) => genTaskList(context, f)).toList();
     bool hasCompleteItem = _taskItems.any((f) => f['isComplete']);
